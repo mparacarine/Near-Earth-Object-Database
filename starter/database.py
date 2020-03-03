@@ -60,7 +60,7 @@ class NEODatabase(object):
                     a_near_earth_obj)
 
         return None
-        
+
     def get_neo_name(self):
         """this function returns the neo_name variable content"""
         return self.neo_name

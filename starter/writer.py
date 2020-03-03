@@ -1,3 +1,4 @@
+import csv
 from enum import Enum
 
 
@@ -23,7 +24,34 @@ class NEOWriter(object):
 
     def __init__(self):
         # TODO: How can we use the OutputFormat in the NEOWriter?
-        pass
+        self.output_formats = OutputFormat.list()
+
+    def stdout(self, data):
+        """
+        Function to display results to the console
+
+        :param data: collection of NearEarthObject or OrbitPath results
+        """
+        for info in data:
+            print(f'{data.index(info)}: {info}')
+
+    def to_csv(self, data):
+        """
+        Function to orint results to a csv file
+
+        :param data: collection of NearEarthObject or OrbitPath results
+        output: results.csv file
+        """
+        with open('results.csv', 'w', newline='') as csvfile:
+            fieldnames = ['id', 'name', 'diameter_min_km',
+                          'orbits', 'orbit_dates']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            writer.writeheader()
+
+            for neo_object in data:
+                writer.writerow({'id': neo_object.id, 'name': neo_object.name, 'diameter_min_km': neo_object.diameter_min_km, 'orbits': [
+                                orbit.neo_name for orbit in neo_object.orbits], 'orbit_dates': [orbit.close_approach_date for orbit in neo_object.orbits]})
 
     def write(self, format, data, **kwargs):
         """
@@ -38,3 +66,19 @@ class NEOWriter(object):
         # TODO: Using the OutputFormat, how can we organize our 'write' logic for output to stdout vs to csvfile
         # TODO: into instance methods for NEOWriter? Write instance methods that write() can call to do the necessary
         # TODO: output format.
+        if format == self.output_formats[0]:
+            try:
+                self.stdout(data)
+                return True
+            except IOError:
+                return False
+
+        elif format == self.output_formats[1]:
+            try:
+                self.to_csv(data)
+                return True
+            except IOError:
+                return False
+
+        else:
+            return False
